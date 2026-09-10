@@ -1,1 +1,0 @@
-ALTER TABLE `stats` ADD `counter` integer;

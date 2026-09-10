@@ -1,1 +1,0 @@
-ALTER TABLE `records` ADD `eventDate` text DEFAULT '' NOT NULL;

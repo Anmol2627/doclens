@@ -1,1 +1,0 @@
-ALTER TABLE `records` ADD `attachments` text;

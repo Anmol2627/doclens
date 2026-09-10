@@ -1,1 +1,0 @@
-ALTER TABLE `keys` ADD `zone` text DEFAULT '';

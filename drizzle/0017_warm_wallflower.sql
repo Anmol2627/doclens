@@ -1,1 +1,0 @@
-ALTER TABLE `records` ADD `transcription` text;
