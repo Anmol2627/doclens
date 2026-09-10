@@ -1,0 +1,20 @@
+CREATE TABLE `operations` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`recordId` integer,
+	`operationId` text,
+	`operationName` text,
+	`operationProgress` float,
+	`operationProgressOf` float,
+	`operationPage` float,
+	`operationPages` float,
+	`operationMessage` float,
+	`operationTextDelta` text,
+	`operationPageDelta` text,
+	`operationRecordText` text,
+	`operationStartedOn` text,
+	`operationStartedOnUserAgent` text,
+	`operationStartedOnSessionId` text,
+	`operationLastStep` text,
+	`operationLastStepUserAgent` text,
+	`operationLastStepSessionId` text
+);

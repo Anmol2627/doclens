@@ -1,0 +1,1 @@
+ALTER TABLE `folderrRecordAttachments` RENAME TO `encryptedAttachments`;
