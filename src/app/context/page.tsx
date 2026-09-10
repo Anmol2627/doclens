@@ -5,6 +5,7 @@ import { Activity, ArrowRight, CheckCircle2, Clock } from "lucide-react";
 import Link from "next/link";
 import { createClient } from '@/utils/supabase/server';
 import { getProfileWithAdmin } from '@/app/actions/profile';
+import { Credenza, CredenzaTrigger, CredenzaContent, CredenzaHeader, CredenzaTitle, CredenzaBody } from "@/components/credenza";
 
 export default async function MedicalContextPage() {
   const supabase = createClient();
@@ -74,34 +75,106 @@ export default async function MedicalContextPage() {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col group relative overflow-hidden hover:border-red-200 hover:shadow-md transition-all cursor-pointer">
-                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Conditions</span>
-                <div className="text-2xl font-bold text-slate-900 mb-2">{activeFindings.length}</div>
-                <ul className="text-xs font-medium text-slate-700 space-y-1 list-disc list-inside flex-1">
-                  {activeFindings.slice(0,3).map((f:any) => <li key={f.id} className="truncate">{f.condition}</li>)}
-                </ul>
-              </div>
+              <Credenza>
+                <CredenzaTrigger asChild>
+                  <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col group relative overflow-hidden hover:border-red-200 hover:shadow-md transition-all cursor-pointer">
+                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Conditions</span>
+                    <div className="text-2xl font-bold text-slate-900 mb-2">{activeFindings.length}</div>
+                    <ul className="text-xs font-medium text-slate-700 space-y-1 list-disc list-inside flex-1">
+                      {activeFindings.slice(0,3).map((f:any) => <li key={f.id} className="truncate">{f.condition}</li>)}
+                    </ul>
+                  </div>
+                </CredenzaTrigger>
+                <CredenzaContent>
+                  <CredenzaHeader>
+                    <CredenzaTitle>All Active Conditions</CredenzaTitle>
+                  </CredenzaHeader>
+                  <CredenzaBody className="max-h-[60vh] overflow-y-auto pb-6">
+                    {activeFindings.length > 0 ? (
+                      <ul className="list-disc list-inside space-y-2 text-sm text-slate-700">
+                        {activeFindings.map((f:any) => <li key={f.id}><strong>{f.condition}</strong> {f.notes ? `- ${f.notes}` : ''}</li>)}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-slate-500">No active conditions found.</p>
+                    )}
+                  </CredenzaBody>
+                </CredenzaContent>
+              </Credenza>
 
-              <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col group relative overflow-hidden hover:border-blue-200 hover:shadow-md transition-all cursor-pointer">
-                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Medications</span>
-                <div className="text-2xl font-bold text-slate-900 mb-2">{activeMedications.length}</div>
-                <ul className="text-xs font-medium text-slate-700 space-y-1 list-disc list-inside flex-1">
-                  {activeMedications.slice(0,3).map((m:any) => <li key={m.id} className="truncate">{m.name}</li>)}
-                </ul>
-              </div>
+              <Credenza>
+                <CredenzaTrigger asChild>
+                  <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col group relative overflow-hidden hover:border-blue-200 hover:shadow-md transition-all cursor-pointer">
+                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Medications</span>
+                    <div className="text-2xl font-bold text-slate-900 mb-2">{activeMedications.length}</div>
+                    <ul className="text-xs font-medium text-slate-700 space-y-1 list-disc list-inside flex-1">
+                      {activeMedications.slice(0,3).map((m:any) => <li key={m.id} className="truncate">{m.name}</li>)}
+                    </ul>
+                  </div>
+                </CredenzaTrigger>
+                <CredenzaContent>
+                  <CredenzaHeader>
+                    <CredenzaTitle>All Active Medications</CredenzaTitle>
+                  </CredenzaHeader>
+                  <CredenzaBody className="max-h-[60vh] overflow-y-auto pb-6">
+                    {activeMedications.length > 0 ? (
+                      <ul className="list-disc list-inside space-y-2 text-sm text-slate-700">
+                        {activeMedications.map((m:any) => <li key={m.id}><strong>{m.name}</strong> {m.dosage ? `- ${m.dosage}` : ''} {m.frequency ? `(${m.frequency})` : ''}</li>)}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-slate-500">No active medications found.</p>
+                    )}
+                  </CredenzaBody>
+                </CredenzaContent>
+              </Credenza>
 
-              <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col group relative overflow-hidden hover:border-emerald-200 hover:shadow-md transition-all cursor-pointer">
-                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Investigations</span>
-                <div className="text-2xl font-bold text-slate-900 mb-2">{investigations?.length || 0}</div>
-                <ul className="text-xs font-medium text-slate-700 space-y-1 list-disc list-inside flex-1">
-                  {investigations?.slice(0,3).map((i:any) => <li key={i.id} className="truncate">{i.test_name}</li>)}
-                </ul>
-              </div>
+              <Credenza>
+                <CredenzaTrigger asChild>
+                  <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col group relative overflow-hidden hover:border-emerald-200 hover:shadow-md transition-all cursor-pointer">
+                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Investigations</span>
+                    <div className="text-2xl font-bold text-slate-900 mb-2">{investigations?.length || 0}</div>
+                    <ul className="text-xs font-medium text-slate-700 space-y-1 list-disc list-inside flex-1">
+                      {investigations?.slice(0,3).map((i:any) => <li key={i.id} className="truncate">{i.test_name}</li>)}
+                    </ul>
+                  </div>
+                </CredenzaTrigger>
+                <CredenzaContent>
+                  <CredenzaHeader>
+                    <CredenzaTitle>All Investigations</CredenzaTitle>
+                  </CredenzaHeader>
+                  <CredenzaBody className="max-h-[60vh] overflow-y-auto pb-6">
+                    {investigations && investigations.length > 0 ? (
+                      <ul className="list-disc list-inside space-y-2 text-sm text-slate-700">
+                        {investigations.map((i:any) => <li key={i.id}><strong>{i.test_name}</strong> {i.value ? `- ${i.value} ${i.unit || ''}` : ''} {i.date ? `(${i.date})` : ''}</li>)}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-slate-500">No investigations found.</p>
+                    )}
+                  </CredenzaBody>
+                </CredenzaContent>
+              </Credenza>
 
-              <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col group relative overflow-hidden hover:border-purple-200 hover:shadow-md transition-all cursor-pointer">
-                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Records</span>
-                <div className="text-2xl font-bold text-slate-900 mb-2">{documents?.length || 0}</div>
-              </div>
+              <Credenza>
+                <CredenzaTrigger asChild>
+                  <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col group relative overflow-hidden hover:border-purple-200 hover:shadow-md transition-all cursor-pointer">
+                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Records</span>
+                    <div className="text-2xl font-bold text-slate-900 mb-2">{documents?.length || 0}</div>
+                  </div>
+                </CredenzaTrigger>
+                <CredenzaContent>
+                  <CredenzaHeader>
+                    <CredenzaTitle>All Records</CredenzaTitle>
+                  </CredenzaHeader>
+                  <CredenzaBody className="max-h-[60vh] overflow-y-auto pb-6">
+                    {documents && documents.length > 0 ? (
+                      <ul className="list-disc list-inside space-y-2 text-sm text-slate-700">
+                        {documents.map((d:any) => <li key={d.id}><strong>{d.file_name || d.name || 'Document'}</strong> {d.created_at ? `(${new Date(d.created_at).toLocaleDateString()})` : ''}</li>)}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-slate-500">No records found.</p>
+                    )}
+                  </CredenzaBody>
+                </CredenzaContent>
+              </Credenza>
             </div>
             
           </div>

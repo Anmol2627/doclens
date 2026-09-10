@@ -3,7 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { format } from 'date-fns';
-import { Activity, FileText, Pill, Stethoscope, AlertTriangle, User, Shield, Clock, ExternalLink, Loader2, XCircle } from 'lucide-react';
+import { Activity, FileText, Pill, Stethoscope, AlertTriangle, User, Shield, Clock, ExternalLink, Loader2, XCircle, Globe } from 'lucide-react';
+
+const LANGUAGES = [
+  { code: 'en', label: 'English' },
+  { code: 'hi', label: 'हिन्दी (Hindi)' },
+  { code: 'ta', label: 'தமிழ் (Tamil)' },
+  { code: 'zh', label: '台灣 (Taiwanese)' },
+];
 
 interface PatientData {
   patient: {
@@ -29,8 +36,11 @@ export default function DoctorPortalPage() {
   const token = params.token as string;
 
   const [data, setData] = useState<PatientData | null>(null);
+  const [displayData, setDisplayData] = useState<PatientData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentLang, setCurrentLang] = useState('en');
+  const [translating, setTranslating] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -43,6 +53,7 @@ export default function DoctorPortalPage() {
         }
         const json = await res.json();
         setData(json);
+        setDisplayData(json);
       } catch (e: any) {
         setError('Failed to load patient data');
       } finally {
@@ -51,6 +62,53 @@ export default function DoctorPortalPage() {
     }
     fetchData();
   }, [token]);
+
+  const handleLanguageChange = async (lang: string) => {
+    setCurrentLang(lang);
+    
+    if (lang === 'en') {
+      // Revert to original English data
+      setDisplayData(data);
+      return;
+    }
+
+    if (!data) return;
+
+    setTranslating(true);
+    try {
+      const payload = {
+        findings: data.findings,
+        medications: data.medications,
+        investigations: data.investigations,
+        events: data.events,
+      };
+
+      const res = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ payload, targetLang: lang }),
+      });
+
+      if (res.ok) {
+        const translated = await res.json();
+        setDisplayData({
+          ...data,
+          findings: translated.findings || data.findings,
+          medications: translated.medications || data.medications,
+          investigations: translated.investigations || data.investigations,
+          events: translated.events || data.events,
+        });
+      } else {
+        console.error('Translation request failed');
+        setDisplayData(data);
+      }
+    } catch (e) {
+      console.error('Translation error:', e);
+      setDisplayData(data);
+    } finally {
+      setTranslating(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -77,9 +135,10 @@ export default function DoctorPortalPage() {
     );
   }
 
-  if (!data) return null;
+  if (!data || !displayData) return null;
 
-  const { patient, findings, medications, investigations, events, documents, config, expiresAt } = data;
+  const { patient, config, expiresAt, documents } = data;
+  const { findings, medications, investigations, events } = displayData;
   const activeFindings = findings.filter((f: any) => f.status === 'ACTIVE');
   const activeMedications = medications.filter((m: any) => m.status === 'ACTIVE');
 
@@ -92,12 +151,50 @@ export default function DoctorPortalPage() {
             <Shield className="w-4 h-4" />
             Secure Patient Portal — shared by the patient
           </div>
-          <div className="flex items-center gap-2 text-sm text-emerald-100">
-            <Clock className="w-4 h-4" />
-            Expires: {format(new Date(expiresAt), 'dd MMM yyyy')}
+          <div className="flex items-center gap-4">
+            {/* Language Selector */}
+            <div className="flex items-center gap-2 bg-emerald-700/50 rounded-lg px-3 py-1.5">
+              <Globe className="w-4 h-4 text-emerald-200" />
+              <select
+                value={currentLang}
+                onChange={(e) => handleLanguageChange(e.target.value)}
+                className="bg-transparent text-sm font-medium text-white outline-none cursor-pointer appearance-none"
+              >
+                {LANGUAGES.map((lang) => (
+                  <option key={lang.code} value={lang.code} className="text-slate-900">
+                    {lang.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-emerald-100">
+              <Clock className="w-4 h-4" />
+              Expires: {format(new Date(expiresAt), 'dd MMM yyyy')}
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Translation overlay */}
+      {translating && (
+        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-8 shadow-xl text-center max-w-sm mx-4">
+            <Loader2 className="w-10 h-10 text-emerald-600 animate-spin mx-auto mb-4" />
+            <p className="font-bold text-slate-900 text-lg">Translating Report...</p>
+            <p className="text-gray-500 text-sm mt-1">Converting medical data to {LANGUAGES.find(l => l.code === currentLang)?.label}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Translation Notice */}
+      {currentLang !== 'en' && !translating && (
+        <div className="max-w-4xl mx-auto mt-4 px-4">
+          <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-5 py-3 text-sm text-amber-800">
+            <Globe className="w-5 h-5 text-amber-600 shrink-0" />
+            <span>This report has been translated to {LANGUAGES.find(l => l.code === currentLang)?.label} using AI. Please refer to original English records for clinical accuracy.</span>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-4xl mx-auto py-8 px-4 space-y-8">
 
