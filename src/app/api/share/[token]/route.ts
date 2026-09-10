@@ -16,7 +16,7 @@ export async function GET(
     const { token } = params
 
     // 1. Validate the token
-    const { data: shareLink, error: linkError } = await supabase
+    const { data: shareLink, error: linkError } = await supabaseAdmin
       .from('share_links')
       .select('*')
       .eq('token', token)
